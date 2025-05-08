@@ -8,36 +8,90 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-  <!-- オリジナルCSS -->
-  <link rel="stylesheet" href="css/style.css" />
-
   <style>
     html, body {
       margin: 0;
+      padding: 0;
       height: 100%;
       overflow: hidden;
     }
 
     #map {
       height: 100vh;
-      width: 100%;
+      width: 100vw;
+    }
+
+    .popup {
+      font-size: 18px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-  <!-- 地図描画用 -->
   <div id="map"></div>
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <script>
-    // 地図の初期化
-    const map = L.map('map').setView([35.6895, 139.6917], 5); // 東京を中心にズーム5
+    document.addEventListener('DOMContentLoaded', () => {
+      // 地図の初期化
+      const map = L.map('map').setView([36.2048, 138.2529], 5); // 日本全体
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 18,
+      }).addTo(map);
 
-    // OpenStreetMap タイル
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
-      maxZoom: 18,
-    }).addTo(map);
+      // 気象庁の地震情報API URL
+      const url = 'https://www.data.jma.go.jp/developer/xml/feed/eqvol.xml';
+
+      // XMLパースと地震情報表示
+      fetch(url)
+        .then(res => res.text())
+        .then(data => {
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(data, "text/xml");
+          const earthquakes = xmlDoc.getElementsByTagName('entry');
+          
+          // 最新の地震情報（最初の地震データ）
+          const latest = earthquakes[0];
+
+          const title = latest.getElementsByTagName('title')[0].textContent;
+          const updated = latest.getElementsByTagName('updated')[0].textContent;
+          const coordinates = latest.getElementsByTagName('georss:point')[0].textContent.split(' ');
+          const magnitude = latest.getElementsByTagName('magnitude')[0].textContent;
+
+          // 位置情報（緯度経度）
+          const lat = parseFloat(coordinates[0]);
+          const lng = parseFloat(coordinates[1]);
+
+          if (!lat || !lng) {
+            alert("地震データに位置情報がありません");
+            return;
+          }
+
+          // 地図にマーカーを表示
+          const marker = L.marker([lat, lng]).addTo(map);
+          const popupText = `
+            <div class="popup">
+              <div>📍 地震発生: ${new Date(updated).toLocaleString()}</div>
+              <div>🌐 震源地: ${title}</div>
+              <div>🌀 規模: M${magnitude}</div>
+            </div>
+          `;
+          marker.bindPopup(popupText).openPopup();
+
+          // 音声通知（Web Speech API）
+          const msg = new SpeechSynthesisUtterance(`地震発生。震源地は ${title}、マグニチュード ${magnitude} です。`);
+          msg.lang = 'ja-JP';
+          speechSynthesis.speak(msg);
+        })
+        .catch(err => {
+          console.error("地震データ取得エラー:", err);
+          alert("地震データを取得できませんでした。");
+        });
+    });
+  </script>
+</body>
+</html>
