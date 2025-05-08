@@ -1,33 +1,43 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>地震ビュアー</title>
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/api.js" defer></script>
-  <script src="js/data.js" defer></script>
-  <script src="js/app.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>地震速報ビュアー</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <!-- オリジナルCSS -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
 </head>
 <body>
-  <div id="app">
-    <header><h1>地震ビュアー</h1></header>
-    <main>
-      <section id="map"></section>
-      <aside id="history-panel">
-        <h2>地震履歴</h2>
-        <ul id="history-list"></ul>
-        <button id="download-btn">履歴を.txtで保存</button>
-      </aside>
-    </main>
-    <footer>
-      <button id="settings-btn">⚙ 設定</button>
-    </footer>
-    <div id="settings-modal" class="modal hidden">
-      <h2>設定</h2>
-      <label>通知音量: <input type="range" id="volume" min="0" max="1" step="0.1"></label>
-      <button id="close-settings">閉じる</button>
-    </div>
-  </div>
-</body>
-</html>
+
+  <!-- 地図描画用 -->
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    // 地図の初期化
+    const map = L.map('map').setView([35.6895, 139.6917], 5); // 東京を中心にズーム5
+
+    // OpenStreetMap タイル
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 18,
+    }).addTo(map);
