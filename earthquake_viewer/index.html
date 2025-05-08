@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>地震ビュアー</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/api.js" defer></script>
+  <script src="js/data.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <div id="app">
+    <header><h1>地震ビュアー</h1></header>
+    <main>
+      <section id="map"></section>
+      <aside id="history-panel">
+        <h2>地震履歴</h2>
+        <ul id="history-list"></ul>
+        <button id="download-btn">履歴を.txtで保存</button>
+      </aside>
+    </main>
+    <footer>
+      <button id="settings-btn">⚙ 設定</button>
+    </footer>
+    <div id="settings-modal" class="modal hidden">
+      <h2>設定</h2>
+      <label>通知音量: <input type="range" id="volume" min="0" max="1" step="0.1"></label>
+      <button id="close-settings">閉じる</button>
+    </div>
+  </div>
+</body>
+</html>
